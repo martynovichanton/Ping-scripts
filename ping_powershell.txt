@@ -1,0 +1,6 @@
+ping.exe -t 8.8.8.8|Foreach{"{0} - {1}" -f (Get-Date),$_} | Tee-Object -file ping.txt
+
+sudo ping -i 0.1 -O 8.8.8.8 | while read pong; do echo "$(date): $pong"; done | tee ping.txt
+
+timeouts only:
+sudo ping -i 0.1 -O 8.8.8.8 | while read pong; do if [[ $pong == *"no answer"* ]]; then echo "$(date): $pong"; fi; done > /home/antonm/Pings/srv_ping_fw &

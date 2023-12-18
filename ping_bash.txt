@@ -1,0 +1,42 @@
+sudo systemctl daemon-reload
+sudo systemctl start pingdc
+sudo systemctl stop pingdc
+sudo journalctl --unit=pingdc
+
+#####################################################################################################
+
+/etc/systemd/system/pingdc.service:
+[Unit]
+Description=Ping DC
+After=network.target
+
+[Service]
+User=antonm
+Group=network
+WorkingDirectory=/srv/Ping
+ExecStart=/bin/bash /srv/Ping/pingdc.sh
+
+[Install]
+WantedBy=multi-user.target
+
+#####################################################################################################
+
+/srv/Ping/pingdc.sh:
+#!/bin/bash
+
+#From DC1
+from=terminal
+declare -A devices
+devices[device1]=10.1.1.1
+devices[device2]=10.1.1.2
+
+
+
+for key in "${!devices[@]}"
+do
+    filename="$from"_ping_"$key".txt
+    ping -i 0.2 -O ${devices[$key]} | while read pong; do if [[ $pong == *"no answer"* ]]; then echo "$(date): $pong"; fi; done >> /srv/Ping/output/$filename &
+done
+
+sleep 1
+tail -f /srv/Ping/output/*_ping_* &> /srv/Ping/output/tail.txt

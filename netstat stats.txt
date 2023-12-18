@@ -1,0 +1,1 @@
+for i in {1..100}; do sleep 2; date; netstat -ant | awk '{print $NF}' | grep -v '[a-z]' | sort | uniq -c; done
